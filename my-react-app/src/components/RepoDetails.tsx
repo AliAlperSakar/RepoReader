@@ -43,29 +43,26 @@ const RepoDetails: React.FC = () => {
       console.log(node);
     }
   };
-
-  const handleFileSelect = (node) => {
-    if (node.type === "file") {
-      setSelectedFile(node);
-    } else if (node.type === "dir") {
-      // For directories, you might want to do something different
-      // For example, you could clear the selected file, or set a state representing the selected directory
-      setSelectedFile(null);
-      // set the state for selected directory here if needed
-    }
-  };
-
+  
   const FileViewer = ({ file }) => {
-    console.log("HELO");
+    console.log("FILE");
+    console.log(file);
+    
     return (
       <div className="file-viewer">
-        <h3>{file.name}</h3>
-        {file.type === "file" && (
-          <a href={file.download_url} target="_blank" rel="noopener noreferrer">
-            Download {file.name}
-          </a>
-        )}
-      </div>
+  <h3 className="text-lg font-semibold mb-2">{file.name}</h3>
+  {file.nodeType === "file" && (
+    <a
+      href={file.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
+    >
+      Download {file.name}
+    </a>
+  )}
+</div>
+
     );
   };
 

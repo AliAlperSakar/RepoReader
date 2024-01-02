@@ -1,10 +1,34 @@
 import React, { useState } from "react";
 import { Treebeard } from "react-treebeard";
+import { FiFolder, FiFileText } from 'react-icons/fi';
 
 const RepositoryTreeView = ({ repositoryContent, onFileSelect }) => {
   const transformedData = transformToTreeData(repositoryContent);
   const [data, setData] = useState(transformedData);
   console.log(transformedData);
+
+  
+  const renderNode = (node, onNodeSelect) => {
+    return (
+      <TreeNode node={node} onNodeSelect={onNodeSelect} />
+    );
+  };
+
+  const TreeNode = ({ node, onNodeSelect }) => {
+    return (
+      <div className="flex items-center p-2 cursor-pointer" onClick={() => onNodeSelect(node)}>
+        {node.nodeType === 'dir' ? (
+          <FiFolder className="inline-block mr-2 text-yellow-500" />
+        ) : (
+          <FiFileText className="inline-block mr-2 text-blue-500" />
+        )}
+        <span className="flex-grow text-gray-800">
+          {node.name}
+        </span>
+      </div>
+    );
+  };
+  
 
   const onToggle = (node, toggled) => {
     if (node.children) {
