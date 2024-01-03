@@ -3,6 +3,7 @@ import RepositoryCard from "./RepositoryCard"; // Adjust the path as necessary
 import RepositoryTreeView from "./RepositoryTreeView";
 import DirectoryInteractor from "./DirectoryInteractor";
 // import FileTree from './FileTree'; // Adjust the path as necessary
+import { FaGithub } from "react-icons/fa";
 
 interface RepositoryInfo {
   name: string;
@@ -33,47 +34,36 @@ const RepoDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleDirectoryClick = (node) => {
-    if (node.nodeType === "dir") {
-      setSelectedDirectory(node);
-      console.log("DIRRRR");
-      console.log(node);
-    }else{
-      setSelectedFile(node);
-      console.log("FILEEE");
-      console.log(node);
-    }
+    setSelectedDirectory(node);
   };
-  
+
   const FileViewer = ({ file }) => {
-    console.log("FILE");
-    console.log(file);
-    
     return (
       <div className="file-viewer">
-  <h3 className="text-lg font-semibold mb-2">{file.name}</h3>
-  {file.nodeType === "file" && (
-    <a
-      href={file.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
-    >
-      Download {file.name}
-    </a>
-  )}
-</div>
-
+        <h3 className="text-lg font-semibold mb-2">{file.name}</h3>
+        {file.nodeType === "file" && (
+          <a
+            href={file.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
+          >
+            Go to that page "{file.name}"
+          </a>
+        )}
+      </div>
     );
   };
 
   const fetchRepositoryDetails = async () => {
+    // Use the URL object to parse the full URL
+    const repoUrlObj = new URL(repositoryUrl);
+    // Extract the pathname and remove the leading slash
+    const repoPath = repoUrlObj.pathname.substring(1);
     try {
-      const response = await fetch(
-        `https://api.github.com/repos/${repositoryUrl}`
-      );
+      const response = await fetch(`https://api.github.com/repos/${repoPath}`);
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
         setRepositoryInfo(data);
         setError(null);
       } else {
@@ -88,14 +78,13 @@ const RepoDetails: React.FC = () => {
 
     try {
       const response = await fetch(
-        `https://api.github.com/repos/${repositoryUrl}/contents`
+        `https://api.github.com/repos/${repoPath}/contents`
       );
       if (response.ok) {
         const data = await response.json();
         const contents = data.filter(
           (item: any) => item.type === "file" || item.type === "dir"
         );
-        console.log(contents);
         setRepositoryContent(contents);
       } else {
         setRepositoryContent([]);
@@ -106,27 +95,6 @@ const RepoDetails: React.FC = () => {
     }
   };
 
-  const onNodeSelect = (node) => {
-    if (node.nodeType === "file") {
-      setSelectedFile(node);
-    } else if (node.nodeType === "dir") {
-      setSelectedDirectory(node);
-    }
-  };
-
-  // useEffect(() => {
-  //   const fetchRepositoryInfo = async () => {
-
-  //   };
-
-  //   const fetchRepositoryContent = async () => {
-
-  //   };
-
-  //   fetchRepositoryInfo();
-  //   fetchRepositoryContent();
-  // }, [repositoryUrl]);
-
   useEffect(() => {
     if (selectedDirectory) {
       // Fetch additional data for the selected directory or perform other actions
@@ -135,31 +103,43 @@ const RepoDetails: React.FC = () => {
 
   return (
     <div
-      className="bg-cover bg-no-repeat bg-fixed bg-center h-screen"
+      className="bg-cover bg-no-repeat bg-center h-screen"
       style={{ backgroundImage: "url(/src/assets/Exploration3.png)" }}
     >
-      <div className="p-4">
-        <h2 className="text-2xl font-semibold mb-4 text-white">
-          GitHub Repository Details
-        </h2>
+      <div className="inline">
+        <div className="flex w-full justify-center mb-10">
+          <div className="inline-flex pt-10">
+            <h2 className="text-white">
+              <FaGithub size={150} />
+            </h2>
+            <h2 className="flex justify-center items-center text-4xl font-bold tracking-tight text-white sm:text-6xl">
+              GitHub Repository Details
+            </h2>
+          </div>
+        </div>
+        <div className="inline-flex w-full justify-center items-center  mb-10">
         <input
-          type="text"
-          placeholder="Enter GitHub repository URL"
-          className="w-full p-2 border rounded-md mb-4"
-          value={repositoryUrl}
-          onChange={(e) => setRepositoryUrl(e.target.value)}
-        />
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              type="text"
+              placeholder="Enter GitHub repository URL"
+              className="w-6/12	p-2 border rounded-md mb-4"
+              value={repositoryUrl}
+              onChange={(e) => setRepositoryUrl(e.target.value)}
+            />
+            <button
+          className="bg-blue-500 text-white px-10 py-2 rounded hover:bg-blue-600 h-10	"
           onClick={fetchRepositoryDetails}
         >
           Get Repository Details
         </button>
+        </div>
+
+
         {repositoryError && (
           <p className="text-red-500 mt-2">{repositoryError}</p>
         )}
 
         {repositoryInfo && <RepositoryCard repo={repositoryInfo} />}
+        <div className="w-full justify-center items-center mb-10">
 
         {repositoryContent.length > 0 && (
           <div className="mt-4">
@@ -172,9 +152,10 @@ const RepoDetails: React.FC = () => {
               </div>
             )} */}
             {repositoryContent.length > 0 && (
-              <div className="mt-4 flex">
-                <div className="w-1/2">
-                  <h3 className="text-xl font-semibold text-white">
+              <div className="flex overflow-y-auto max-h-[60vh] mb-4 p-2 space-y-2" id="conversation-container">
+
+                <div className="w-1/2 px-10 bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[80vh]">
+                  <h3 className="text-2xl font-semibold mb-4">
                     Repository Content:
                   </h3>
                   <RepositoryTreeView
@@ -182,10 +163,9 @@ const RepoDetails: React.FC = () => {
                     onFileSelect={handleDirectoryClick}
                   />
                 </div>
-                
-                <div className="w-1/2">
-                  {selectedFile && <FileViewer file={selectedFile} />}
-                  {(selectedDirectory || selectedFile) && (
+                <div className="w-1/2 bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[80vh]">
+                  {selectedDirectory && <FileViewer file={selectedDirectory} />}
+                  {selectedDirectory && (
                     <DirectoryInteractor
                       selectedDirectory={selectedDirectory}
                     />
@@ -195,6 +175,8 @@ const RepoDetails: React.FC = () => {
             )}
           </div>
         )}
+      </div>
+
       </div>
     </div>
   );
