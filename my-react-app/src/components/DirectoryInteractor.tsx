@@ -42,7 +42,7 @@ const DirectoryInteractor: React.FC<DirectoryInteractorProps> = ({ selectedDirec
       const newConversation = [...conversation, { type: 'question', text: question }];
       setConversation(newConversation);
       setQuestion("");
-
+      console.log(selectedDirectory.url)
       try {
         const githubContentResponse = await axios.post('http://127.0.0.1:5000/fetch-github-content', { url: selectedDirectory.url });
         const llmResponse = await axios.post("http://127.0.0.1:5000/ask", {

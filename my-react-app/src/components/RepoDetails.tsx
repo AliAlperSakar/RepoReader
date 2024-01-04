@@ -106,6 +106,8 @@ const RepoDetails: React.FC = () => {
       className="bg-cover bg-no-repeat bg-center h-screen"
       style={{ backgroundImage: "url(/src/assets/Exploration3.png)" }}
     >
+<div className="bg-black bg-opacity-50 min-h-screen flex justify-center items-center border border-gray-200 rounded-lg">
+
       <div className="inline">
         <div className="flex w-full justify-center mb-10">
           <div className="inline-flex pt-10">
@@ -121,7 +123,7 @@ const RepoDetails: React.FC = () => {
         <input
               type="text"
               placeholder="Enter GitHub repository URL"
-              className="w-6/12	p-2 border rounded-md mb-4"
+              className="w-6/12	p-2 border rounded-md"
               value={repositoryUrl}
               onChange={(e) => setRepositoryUrl(e.target.value)}
             />
@@ -176,8 +178,9 @@ const RepoDetails: React.FC = () => {
           </div>
         )}
       </div>
-
       </div>
+      </div>
+
     </div>
   );
 };
