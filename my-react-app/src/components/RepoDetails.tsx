@@ -37,23 +37,7 @@ const RepoDetails: React.FC = () => {
     setSelectedDirectory(node);
   };
 
-  const FileViewer = ({ file }) => {
-    return (
-      <div className="file-viewer">
-        <h3 className="text-lg font-semibold mb-2">{file.name}</h3>
-        {file.nodeType === "file" && (
-          <a
-            href={file.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
-          >
-            Go to that page "{file.name}"
-          </a>
-        )}
-      </div>
-    );
-  };
+
 
   const fetchRepositoryDetails = async () => {
     // Use the URL object to parse the full URL
@@ -82,6 +66,7 @@ const RepoDetails: React.FC = () => {
       );
       if (response.ok) {
         const data = await response.json();
+        console.log(data)
         const contents = data.filter(
           (item: any) => item.type === "file" || item.type === "dir"
         );
@@ -103,10 +88,10 @@ const RepoDetails: React.FC = () => {
 
   return (
     <div
-      className="bg-cover bg-no-repeat bg-center h-screen"
+      className="bg-cover bg-no-repeat bg-center"
       style={{ backgroundImage: "url(/src/assets/Exploration3.png)" }}
     >
-<div className="bg-black bg-opacity-50 min-h-screen flex justify-center items-center border border-gray-200 rounded-lg">
+<div className="bg-black bg-opacity-50 min-h-screen justify-center items-center border border-gray-200 rounded-lg">
 
       <div className="inline">
         <div className="flex w-full justify-center mb-10">
@@ -139,48 +124,47 @@ const RepoDetails: React.FC = () => {
         {repositoryError && (
           <p className="text-red-500 mt-2">{repositoryError}</p>
         )}
-
-        {repositoryInfo && <RepositoryCard repo={repositoryInfo} />}
-        <div className="w-full justify-center items-center mb-10">
-
+      {repositoryInfo && <RepositoryCard repo={repositoryInfo} />}
+      
+      </div>
+      <div className="flex justify-center items-center">
         {repositoryContent.length > 0 && (
-          <div className="mt-4">
-            {/* {repositoryContent.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-xl font-semibold text-white">
-                  Repository Content:
-                </h3>
-                <RepositoryTreeView repositoryContent={repositoryContent} />
-              </div>
-            )} */}
-            {repositoryContent.length > 0 && (
-              <div className="flex overflow-y-auto max-h-[60vh] mb-4 p-2 space-y-2" id="conversation-container">
-
-                <div className="w-1/2 px-10 bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[80vh]">
-                  <h3 className="text-2xl font-semibold mb-4">
-                    Repository Content:
+          <div className="w-3/4">
+            <div className="mt-4">
+              <div className="flex overflow-y-auto p-2 " id="conversation-container">
+                <div className="w-full px-10 bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[58vh]">
+                  <div className="flex border-y-1 bg-gray-700">
+                  <h3 className="text-xl w-1/2 text-yellow-600 font-semibold mb-4">
+                    Repository Content
                   </h3>
+                  <h2 className="text-xl ml-auto text-yellow-600 font-semibold mb-4">
+                    Size
+                  </h2>
+                  </div>
                   <RepositoryTreeView
                     repositoryContent={repositoryContent}
                     onFileSelect={handleDirectoryClick}
                   />
                 </div>
-                <div className="w-1/2 bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[80vh]">
-                  {selectedDirectory && <FileViewer file={selectedDirectory} />}
-                  {selectedDirectory && (
+                {selectedDirectory && (
+                  <div className="w-full bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[58vh]">
+                {selectedDirectory && (
                     <DirectoryInteractor
                       selectedDirectory={selectedDirectory}
                     />
                   )}
-                </div>
+                  </div>
+                  
+                )}
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
-      </div>
-      </div>
+      
 
+      </div>
+      
     </div>
   );
 };

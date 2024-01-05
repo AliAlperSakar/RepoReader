@@ -16,6 +16,7 @@ const RepositoryTreeView = ({ repositoryContent, onFileSelect }) => {
     const owner = urlParts[0];
     const repo = urlParts[1];
     const path = urlParts.slice(4).join('/');
+    console.log(path)
     return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
   };
   
@@ -25,6 +26,7 @@ const RepositoryTreeView = ({ repositoryContent, onFileSelect }) => {
       return contents.map(item => ({
         name: item.name,
         path: item.path,
+        size: item.size,
         toggled: false,
         nodeType: item.type,
         url: item.download_url, // Ensure this is the correct property for the URL
@@ -148,7 +150,8 @@ const RepositoryTreeView = ({ repositoryContent, onFileSelect }) => {
     <div>
       <div className="flex items-center p-2 cursor-pointer" onClick={toggleExpand}>
         {getFileIcon(node)}
-        <span className="flex-grow text-white">{node.name}</span>
+        <span className="flex w-1/2 text-white">{node.name}</span>
+        <span className="flex text-white ml-auto">{node.size}  bytes </span>
       </div>
       {isExpanded && node.children && (
         <div className="ml-4">
@@ -196,6 +199,7 @@ const transformToTreeData = (repositoryContent) => {
         return parentPath === dirPath;
       })
       .map((node) => {
+        console.log(node.size)
         // Check if the current node is a directory
         // const isDirectory = node.type === "dir";
         // console.log(isDirectory + node.name, node.type)
@@ -203,6 +207,7 @@ const transformToTreeData = (repositoryContent) => {
         const treeNode = {
           name: node.name,
           path: node.path,
+          size: node.size,
           toggled: parentPath === "", // Only toggle root directories by default
           nodeType: node.type,
           url: node.html_url,
