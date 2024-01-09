@@ -5,6 +5,14 @@
   text-align: center;
 }
 
+.loading-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999; /* Optional: Adjust the z-index if needed */
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

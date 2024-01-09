@@ -8,7 +8,11 @@ export default {
     "./src/**/*.tsx",
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'repo-pattern': "url(/src/assets/Exploration3.png)",
+      }
+    },
   },
   plugins: [],
 }

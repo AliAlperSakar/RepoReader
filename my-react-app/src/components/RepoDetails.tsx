@@ -3,7 +3,11 @@ import RepositoryCard from "./RepositoryCard"; // Adjust the path as necessary
 import RepositoryTreeView from "./RepositoryTreeView";
 import DirectoryInteractor from "./DirectoryInteractor";
 // import FileTree from './FileTree'; // Adjust the path as necessary
+
 import { FaGithub } from "react-icons/fa";
+import { background } from "../assets";
+
+
 
 interface RepositoryInfo {
   name: string;
@@ -89,7 +93,7 @@ const RepoDetails: React.FC = () => {
   return (
     <div
       className="bg-cover bg-no-repeat bg-center"
-      style={{ backgroundImage: "url(/src/assets/Exploration3.png)" }}
+      style={{ backgroundImage: `url(${background})` }}
     >
 <div className="bg-black bg-opacity-50 min-h-screen justify-center items-center border border-gray-200 rounded-lg">
 
@@ -133,9 +137,10 @@ const RepoDetails: React.FC = () => {
             <div className="mt-4">
               <div className="flex overflow-y-auto p-2 " id="conversation-container">
                 <div className="w-full px-10 bg-black bg-opacity-70 text-white rounded-lg p-4 shadow-lg overflow-y-auto max-h-[58vh]">
-                  <div className="flex border-y-1 bg-gray-700">
+                  <div className="flex border-y-1 bg-gray-700 rounded-lg">
+
                   <h3 className="text-xl w-1/2 text-yellow-600 font-semibold mb-4">
-                    Repository Content
+                    Repository Content <br></br> <h1 className="text-sm text-red-500">(Select File/Folder)</h1>
                   </h3>
                   <h2 className="text-xl ml-auto text-yellow-600 font-semibold mb-4">
                     Size
