@@ -11,6 +11,7 @@ import requests
 import spacy
 from OpenSSL import SSL
 from spacy.tokenizer import Tokenizer
+import json
 
 
 
@@ -20,12 +21,15 @@ SECRET_KEY = os.environ.get("api_authorization")
 API_URL = os.environ.get("api_url")
 # DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
 
+MISTRAL_API_KEY = 'K61wUfykH84hiWgbHMAcSRSKKxE6fJN7'
+MISTRAL_ENDPOINT = 'https://api.mistral.ai/v1/chat/completions'
+
 openai.api_key = SECRET_KEY
 app = Flask(__name__)
 
 CORS(app)
 openai.api_key = SECRET_KEY
-generator = pipeline('text-generation', model='gpt2')
+
 
 
 # Load the spaCy model
@@ -78,21 +82,78 @@ def post_process_answers(answers):
 
     return final_answer
 
+#MISTRAL AI 
+# @app.route('/ask', methods=['POST'])
+# @cross_origin(origin='*')
+# def ask():
+#     try:
+#         content = request.json
+#         question = content['question']
+#         context = content['context']
 
+#         if not question or not context:
+#             app.logger.info("Question and/or context are missing in the request.")
+#             return jsonify({"error": "Question and context are required."}), 400
+
+#         # Prepare the payload for the Mistral API request
+#         payload = {
+#             "model": "mistral-tiny",  # Replace with the actual model you intend to use
+#             "messages": [
+#                 {
+#                     "role": "user",
+#                     "content": question
+#                 }
+#             ],
+#             "temperature": 0.7,
+#             "top_p": 1,
+#             "max_tokens": 5000
+#         }
+
+#         # Send the POST request to the Mistral API
+#         headers = {
+#             'Authorization': f'Bearer {MISTRAL_API_KEY}',
+#             'Content-Type': 'application/json'
+#         }
+#         response = requests.post(MISTRAL_ENDPOINT, json=payload, headers=headers)
+
+#         # Check if the request was successful
+#         if response.status_code == 200:
+#             data = response.json()
+#             answer = data['completions'][0]['message']['content'].strip()  # Adjust based on actual response format
+#             return jsonify({"answer": answer})
+#         else:
+#             app.logger.error(f"Failed to get a valid response from Mistral API: {response.content}")
+#             return jsonify({"error": "Failed to get a valid response from Mistral API."}), 500
+
+#     except Exception as e:
+#         app.logger.error(f"An unexpected error occurred: {e}")
+#         return jsonify({"error": "An unexpected error occurred."}), 500
+
+
+
+# OPEN AI 
 @app.route('/ask', methods=['POST'])
 @cross_origin(origin='*')
 def ask():
     try:
         content = request.json
         question = content['question']
-        context = content['context']
+        json_context = content['context']
 
-        if not question or not context:
+        
+        print(json_context)
+        if not question or not json_context:
             app.logger.info("Question and/or context are missing in the request.")
             return jsonify({"error": "Question and context are required."}), 400
 
+        context_data = json.loads(json_context)
+        # Adjust the key path according to your JSON structure
+        raw_lines = context_data['payload']['blob']['rawLines']
+
+        # Combine the lines into a single string
+        file_content = '\n'.join(raw_lines)
         # Use the chunk_text function to split the context into manageable parts
-        context_chunks = chunk_text(context)
+        context_chunks = chunk_text(file_content)
 
         print("Context Chunks:")
         for idx, chunk in enumerate(context_chunks):
@@ -108,14 +169,17 @@ def ask():
         for idx, chunk in enumerate(context_chunks):
             print(tokenizer(chunk))
             messages = [
-                {"role": "system", "content": "You are a helpful assistant to analyze the file that is given to you. A user can give you a file that may be one of these (.js (JavaScript), .html (HTML), .css (CSS), .py (Python), .json (JSON), .md (Markdown), .java (Java), .rb (Ruby), .c (C), .cpp (C++), .sql (SQL), .php (PHP), .jsx (JavaScript JSX), .ts (TypeScript), .scss (Sass), .xml (XML), .yml (YAML), .sh (Shell script), .go (Go), .swift (Swift)) types or other types from any github repository, that is why you should provide more precise and specific answer about files according to also their types."},
+                {
+                  "role": "system",
+                  "content": "You are a helpful assistant tasked with analyzing files from GitHub repositories. You will receive context in parts, as the original context is divided into chunks to avoid exceeding token limitations. Each chunk you receive is part of a larger context, and they are all interconnected. Your responses should recognize this continuity and avoid repetition. Focus on providing specific, precise answers relevant to the file type in each chunk. You may encounter various file types, such as .js (JavaScript), .html (HTML), .css (CSS), .py (Python), .json (JSON), .md (Markdown), .java (Java), .rb (Ruby), .c (C), .cpp (C++), .sql (SQL), .php (PHP), .jsx (JavaScript JSX), .ts (TypeScript), .scss (Sass), .xml (XML), .yml (YAML), .sh (Shell script), .go (Go), .swift (Swift), and others. If a chunk includes an image, please provide details/features of the image if possible. Your answers should be concise, clear, and context-aware, tailored to the file type and the specific content of each chunk."
+                },
                 {"role": "user", "content": chunk},
                 {"role": "user", "content": question}
             ]
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
-                max_tokens=2700
+                max_tokens=3000
             )
             if response and 'choices' in response and len(response['choices']) > 0:
                 answer = response['choices'][0]['message']['content'].strip()
